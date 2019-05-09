@@ -58,6 +58,10 @@ namespace AuthorizationService
                 }
             });
 
+            services.AddMvc();
+
+         
+
             if (isDemoMode)
             {
                 services.AddIdentityServer()
@@ -78,7 +82,7 @@ namespace AuthorizationService
 
             }
 
-            services.AddMvc();
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -95,7 +99,7 @@ namespace AuthorizationService
             }
 
             app.UseIdentityServer();
-            // app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
 
             app.UseRouting(routes =>
             {

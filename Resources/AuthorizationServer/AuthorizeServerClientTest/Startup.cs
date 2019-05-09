@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace AuthorizeServerClientTest
 {
@@ -25,31 +27,58 @@ namespace AuthorizeServerClientTest
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
+            //services.Configure<CookiePolicyOptions>(options =>
+            //{
+            //    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+            //    options.CheckConsentNeeded = context => true;
+            //    options.MinimumSameSitePolicy = SameSiteMode.None;
+            //});
 
-            services.AddMvcCore()
-                .AddAuthorization();
+            //services.AddMvcCore()
+            //    .AddAuthorization();
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = "cookie";
-                options.DefaultChallengeScheme = "oidc";
-            })
-            .AddCookie("cookie")
-            .AddOpenIdConnect("oidc", options =>
-            {
-                options.Authority = "https://localhost:4998/";
-                options.ClientId = "openIdConnectClient1";
-                options.SignInScheme = "cookie";
-            });
+            //services.AddAuthentication(options =>
+            //{
+            //    options.DefaultScheme = "cookie";
+            //    options.DefaultChallengeScheme = "oidc";
+            //})
+            //.AddCookie("cookie")
+            //.AddOpenIdConnect("oidc", options =>
+            //{
+            //    options.RequireHttpsMetadata = false;
+            //    options.Authority = "https://localhost:4998/";
+            //    options.ClientId = "openIdConnectClient";
+            //    options.SignInScheme = "cookie";
+            //});
+
+            //services.AddAuthentication("Bearer")
+            //.AddIdentityServerAuthentication("Bearer", options =>
+            //{
+            //    options.Authority = "https://localhost:4998";
+            //    options.RequireHttpsMetadata = false;
+
+            //    //options.Audience = "api1";
+            //});
+            //services.AddAuthentication().AddIdentityServerAuthentication("IdentityBearer", options =>
+            //{
+            //    options.Authority = "https://localhost:4998/";
+            //    options.RequireHttpsMetadata = false;
+            //});
 
             services.AddMvc()
                 .AddNewtonsoftJson();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                            .AddIdentityServerAuthentication(options =>
+                            {
+                                options.Authority = "https://localhost:4998";
+                                options.RequireHttpsMetadata = false;
+
+                                options.ApiName = "api1";
+                                options.ApiSecret = "secret";
+                            });
+
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -65,7 +94,6 @@ namespace AuthorizeServerClientTest
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
             app.UseCookiePolicy();
             app.UseAuthentication();
             app.UseAuthorization();
